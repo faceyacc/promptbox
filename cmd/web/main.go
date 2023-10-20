@@ -7,6 +7,11 @@ import (
 	"os"
 )
 
+// Struct to hold application-wide dependencies.
+type application struct {
+	logger *slog.Logger
+}
+
 func main() {
 
 	addr := flag.String("addr", ":4000", "HTTP network address")
@@ -15,14 +20,18 @@ func main() {
 	// Added for structured logging
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
+	app := &application{
+		logger: logger,
+	}
+
 	mux := http.NewServeMux()
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/prompt/view", promptView)
-	mux.HandleFunc("/prompt/create", promptCreate)
+	mux.HandleFunc("/", app.home)
+	mux.HandleFunc("/prompt/view", app.promptView)
+	mux.HandleFunc("/prompt/create", app.promptCreate)
 
 	logger.Info("starting server", slog.String("addr", *addr))
 
