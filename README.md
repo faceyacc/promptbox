@@ -5,14 +5,12 @@
 > Prompt Share in a box. A way to share, collaborate, and improve prompts. Promptbox is a project to give  to give users a way to share prompts,  text, and other small pieces of content with others.
 
 ## Usage
-Run the following command in the root directory:
-
-```sh
-npm start
-```
-
-Once the app is running you can login with your Spotify account to track trends in your music and sort music by audio features (i.e. danceability, energy, and tempo).
-
+- [x] Add Promptbox Homepage
+- [x] Add basic View and Create handlers 
+- [ ] Create processing forms
+- [ ] Install database driver
+- [ ] Connect to MySQL
+- [ ] Add user authenticatiotn
 ## Demo
 
 ![](spotify.gif)
