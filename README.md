@@ -13,7 +13,7 @@
 - [ ] Add user authenticatiotn
 ## Demo
 
-![](spotify.gif)
+Coming Soon 👀
 
 ## Author
 
