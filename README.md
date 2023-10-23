@@ -2,7 +2,7 @@
 <p>
 </p>
 
-> Prompt collaboration in a box. A way to share, collaborate, and improve prompts. Promptbox is a project to give  to give users a way to share prompts,  text, and other small pieces of content with others.
+> Prompt Share in a box. A way to share, collaborate, and improve prompts. Promptbox is a project to give  to give users a way to share prompts,  text, and other small pieces of content with others.
 
 ## Usage
 Run the following command in the root directory:
