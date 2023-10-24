@@ -1,4 +1,4 @@
-<h1 align="center">Prmoptbox - A Prmopt Share Platform</h1>
+<h1 align="center">Prmoptbox - A Prompt Share Platform</h1>
 <p>
 </p>
 
