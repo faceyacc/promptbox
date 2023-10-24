@@ -8,7 +8,7 @@
 - [x] Add Promptbox Homepage
 - [x] Add basic View and Create handlers 
 - [ ] Create processing forms
-- [ ] Install database driver
+- [x] Install database driver
 - [ ] Connect to MySQL
 - [ ] Add user authenticatiotn
 ## Demo
