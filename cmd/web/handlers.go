@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"promptbox.tyfacey.net/internal/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +42,18 @@ func (app *application) promptView(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	fmt.Fprintf(w, "Display a specific prompt with ID %d...", id)
+
+	prompt, err := app.prompts.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	fmt.Fprintf(w, "%+v", prompt)
 }
 
 func (app *application) promptCreate(w http.ResponseWriter, r *http.Request) {
@@ -49,5 +63,17 @@ func (app *application) promptCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Create a new snippet..."))
+	// Variables to test prompt creation
+	title := "Revere a linked list"
+	content := "Write a code snippet to revere a linked list"
+	expires := 7
+
+	id, err := app.prompts.Insert(title, content, expires)
+
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/prompt/view?id=%d", id), http.StatusSeeOther)
 }
