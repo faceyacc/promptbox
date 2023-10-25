@@ -56,5 +56,32 @@ func (m *PromptModel) Get(id int) (Prompt, error) {
 }
 
 func (m *PromptModel) Latest() ([]Prompt, error) {
-	return nil, nil
+	query := `SELECT id, title, content, created, expires FROM snippets 
+			  WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
+
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var prompts []Prompt
+
+	for rows.Next() {
+		var p Prompt
+
+		err = rows.Scan(&p.ID, &p.Title, &p.Content, &p.Created, &p.Expires)
+		if err != nil {
+			return nil, err
+		}
+		prompts = append(prompts, p)
+	}
+
+	// Check for unsuccessful iteration over rows
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return prompts, nil
 }
