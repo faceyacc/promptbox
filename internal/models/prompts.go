@@ -56,7 +56,7 @@ func (m *PromptModel) Get(id int) (Prompt, error) {
 }
 
 func (m *PromptModel) Latest() ([]Prompt, error) {
-	query := `SELECT id, title, content, created, expires FROM snippets 
+	query := `SELECT id, title, content, created, expires FROM prompts 
 			  WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
 
 	rows, err := m.DB.Query(query)
