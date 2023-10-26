@@ -2,5 +2,22 @@
 
 {{ define "main" }}
     <h2>Latest Prompts</h2>
+    {{ if .Prompts }}
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Created</th>
+            <th>ID</th>
+        </tr>
+        {{ range .Prompts }}
+        <tr>
+            <td><a href="/prompt/view?id={{ .ID }}">{{ .Title }}</a></td>
+            <td>{{ .Created }}</td>
+            <td>#{{ .ID }}</td>
+        </tr>
+        {{ end }}
+    </table>
+    {{ else }}
     <p>There's nothing to see here yet!</p>
+    {{ end }}
 {{ end }}
