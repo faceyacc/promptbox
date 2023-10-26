@@ -9,7 +9,8 @@
 - [x] Add basic View and Create handlers 
 - [ ] Create processing forms
 - [x] Install database driver
-- [ ] Connect to MySQL
+- [x] Connect to MySQL
+- [ ] Display the dynamic data from MySQL database in HTML pages
 - [ ] Add user authenticatiotn
 ## Demo
 
