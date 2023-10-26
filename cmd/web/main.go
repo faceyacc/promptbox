@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
@@ -13,8 +14,9 @@ import (
 
 // Struct to hold application-wide dependencies.
 type application struct {
-	logger  *slog.Logger
-	prompts *models.PromptModel
+	logger        *slog.Logger
+	prompts       *models.PromptModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -32,12 +34,20 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Initalize template cache
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	// close connection pool before main() exits
 	defer db.Close()
 
 	app := &application{
-		logger:  logger,
-		prompts: &models.PromptModel{DB: db},
+		logger:        logger,
+		prompts:       &models.PromptModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	logger.Info("starting server", "addr", *addr)
