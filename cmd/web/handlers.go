@@ -21,7 +21,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, r, http.StatusOK, "home.html", templateData{Prompts: prompts})
+	data := app.newTemplateData(r)
+	data.Prompts = prompts
+
+	app.render(w, r, http.StatusOK, "home.html", data)
 }
 
 func (app *application) promptView(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +44,10 @@ func (app *application) promptView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, r, http.StatusOK, "view.html", templateData{Prompt: prompt})
+	data := app.newTemplateData(r)
+	data.Prompt = prompt
+
+	app.render(w, r, http.StatusOK, "view.html", data)
 }
 
 func (app *application) promptCreate(w http.ResponseWriter, r *http.Request) {

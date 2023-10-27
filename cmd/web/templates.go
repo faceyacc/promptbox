@@ -7,9 +7,12 @@ import (
 	"promptbox.tyfacey.net/internal/models"
 )
 
+// templateData is struct to pass dynamic data (data from database)
+// to HTML templates.
 type templateData struct {
-	Prompt  models.Prompt
-	Prompts []models.Prompt
+	Prompt      models.Prompt
+	Prompts     []models.Prompt
+	CurrentYear int
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
@@ -26,14 +29,17 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		// Get filename from full path.
 		name := filepath.Base(page)
 
-		files := []string{
-			"./ui/html/base.html",
-			"./ui/html/partials/nav.html",
-			page,
+		ts, err := template.ParseFiles("./ui/html/base.html")
+		if err != nil {
+			return nil, err
 		}
 
-		// Parse files into template set.
-		ts, err := template.ParseFiles(files...)
+		ts, err = ts.ParseGlob("./ui/html/partials/*.html")
+		if err != nil {
+			return nil, err
+		}
+
+		ts, err = ts.ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
