@@ -20,6 +20,7 @@ func humanDate(t time.Time) string {
 	return t.Format("Oct 06 2006 at 15:04")
 }
 
+// Pass in functions for template use.
 var functions = template.FuncMap{
 	"humanDate": humanDate,
 }
