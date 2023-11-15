@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/justinas/alice"
+)
 
 // Return a servemux containing application routes.
 func (app *application) routes() http.Handler {
@@ -13,5 +17,7 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("/prompt/view", app.promptView)
 	mux.HandleFunc("/prompt/create", app.promptCreate)
 
-	return app.logRequest(secureHeaders(mux))
+	requestMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
+
+	return requestMiddleware.Then(mux)
 }

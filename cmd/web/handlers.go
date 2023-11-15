@@ -15,8 +15,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// panic("opps! something went wrong")
-
 	prompts, err := app.prompts.Latest()
 	if err != nil {
 		app.serverError(w, r, err)
