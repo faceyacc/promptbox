@@ -6,14 +6,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/julienschmidt/httprouter"
 	"promptbox.tyfacey.net/internal/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
 
 	prompts, err := app.prompts.Latest()
 	if err != nil {
@@ -28,7 +25,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) promptView(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+
+	params := httprouter.ParamsFromContext(r.Context())
+
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
 		return
@@ -50,12 +50,7 @@ func (app *application) promptView(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "view.html", data)
 }
 
-func (app *application) promptCreate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
+func (app *application) promptCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	// Variables to test prompt creation
 	title := "Revere a linked list"
@@ -69,5 +64,11 @@ func (app *application) promptCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/prompt/view?id=%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/prompt/view/%d", id), http.StatusSeeOther)
+}
+
+func (app *application) promptCreate(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+
+	app.render(w, r, http.StatusOK, "create.html", data)
 }
