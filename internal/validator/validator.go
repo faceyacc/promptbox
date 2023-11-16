@@ -7,7 +7,6 @@ import (
 )
 
 type Validator struct {
-
 	// Holds error messages for form field.
 	FieldErrors map[string]string
 }
