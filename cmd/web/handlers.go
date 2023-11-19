@@ -12,10 +12,10 @@ import (
 )
 
 type promptCreateForm struct {
-	Title   string
-	Content string
-	Expires int
-	validator.Validator
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	Expires             int    `form:"expires"`
+	validator.Validator `form:"-"`
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -60,24 +60,12 @@ func (app *application) promptView(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) promptCreatePost(w http.ResponseWriter, r *http.Request) {
 
-	err := r.ParseForm()
+	var form promptCreateForm
+
+	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
-	}
-
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
-	if err != nil {
-		// Send a 400 response if string to number conversion fails.
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
-	// Get title, content, and expiry from request body.
-	form := promptCreateForm{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: expires,
 	}
 
 	// Check title field

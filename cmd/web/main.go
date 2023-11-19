@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 	"promptbox.tyfacey.net/internal/models"
 )
@@ -17,6 +18,7 @@ type application struct {
 	logger        *slog.Logger
 	prompts       *models.PromptModel
 	templateCache map[string]*template.Template
+	formDecoder   *form.Decoder
 }
 
 func main() {
@@ -41,6 +43,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	formDecoder := form.NewDecoder()
+
 	// close connection pool before main() exits
 	defer db.Close()
 
@@ -48,6 +52,7 @@ func main() {
 		logger:        logger,
 		prompts:       &models.PromptModel{DB: db},
 		templateCache: templateCache,
+		formDecoder:   formDecoder,
 	}
 
 	logger.Info("starting server", "addr", *addr)
