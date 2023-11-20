@@ -52,11 +52,8 @@ func (app *application) promptView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	toast := app.sessionManager.PopString(r.Context(), "toast")
-
 	data := app.newTemplateData(r)
 	data.Prompt = prompt
-	data.Toast = toast
 
 	app.render(w, r, http.StatusOK, "view.html", data)
 }

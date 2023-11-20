@@ -33,6 +33,7 @@ func (app *application) decodePostForm(r *http.Request, destination any) error {
 func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		CurrentYear: time.Now().Year(),
+		Toast:       app.sessionManager.PopString(r.Context(), "toast"),
 	}
 
 }
