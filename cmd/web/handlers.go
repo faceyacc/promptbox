@@ -52,8 +52,11 @@ func (app *application) promptView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	toast := app.sessionManager.PopString(r.Context(), "toast")
+
 	data := app.newTemplateData(r)
 	data.Prompt = prompt
+	data.Toast = toast
 
 	app.render(w, r, http.StatusOK, "view.html", data)
 }
@@ -91,6 +94,9 @@ func (app *application) promptCreatePost(w http.ResponseWriter, r *http.Request)
 		app.serverError(w, r, err)
 		return
 	}
+
+	// Add session data.
+	app.sessionManager.Put(r.Context(), "toast", "Prompt ssuccesfully created!")
 
 	http.Redirect(w, r, fmt.Sprintf("/prompt/view/%d", id), http.StatusSeeOther)
 }

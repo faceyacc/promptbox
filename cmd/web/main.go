@@ -7,7 +7,10 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 	"promptbox.tyfacey.net/internal/models"
@@ -15,10 +18,11 @@ import (
 
 // Struct to hold application-wide dependencies.
 type application struct {
-	logger        *slog.Logger
-	prompts       *models.PromptModel
-	templateCache map[string]*template.Template
-	formDecoder   *form.Decoder
+	logger         *slog.Logger
+	prompts        *models.PromptModel
+	templateCache  map[string]*template.Template
+	formDecoder    *form.Decoder
+	sessionManager *scs.SessionManager
 }
 
 func main() {
@@ -26,17 +30,20 @@ func main() {
 	dsn := flag.String("dsn", "web:turintest@/promptbox?parseTime=true", "MySQL data source name")
 	flag.Parse()
 
-	// Added for structured logging
+	// Added for structured logging.
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	// Creates a database connection pool
+	// Creates a database connection pool.
 	db, err := openDB(*dsn)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
 
-	// Initalize template cache
+	// Close connection pool before main() exits.
+	defer db.Close()
+
+	// Initalize template cache.
 	templateCache, err := newTemplateCache()
 	if err != nil {
 		logger.Error(err.Error())
@@ -45,14 +52,16 @@ func main() {
 
 	formDecoder := form.NewDecoder()
 
-	// close connection pool before main() exits
-	defer db.Close()
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
 
 	app := &application{
-		logger:        logger,
-		prompts:       &models.PromptModel{DB: db},
-		templateCache: templateCache,
-		formDecoder:   formDecoder,
+		logger:         logger,
+		prompts:        &models.PromptModel{DB: db},
+		templateCache:  templateCache,
+		formDecoder:    formDecoder,
+		sessionManager: sessionManager,
 	}
 
 	logger.Info("starting server", "addr", *addr)

@@ -15,6 +15,7 @@ type templateData struct {
 	Prompts     []models.Prompt
 	CurrentYear int
 	Form        any
+	Toast       string
 }
 
 func humanDate(t time.Time) string {
