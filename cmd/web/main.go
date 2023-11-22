@@ -26,6 +26,8 @@ type application struct {
 }
 
 func main() {
+	cert := "../certs_promptbox/tls/cert.pem"
+	key := "../certs_promptbox/tls/key.pem"
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:turintest@/promptbox?parseTime=true", "MySQL data source name")
 	flag.Parse()
@@ -55,6 +57,7 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.Secure = true
 
 	app := &application{
 		logger:         logger,
@@ -67,13 +70,14 @@ func main() {
 	logger.Info("starting server", "addr", *addr)
 
 	srv := &http.Server{
-		Addr:    *addr,
-		Handler: app.routes(),
+		Addr:     *addr,
+		Handler:  app.routes(),
+		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
 	}
 
 	logger.Info("starting server", "addr", srv.Addr)
 
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS(cert, key)
 
 	logger.Error(err.Error())
 	os.Exit(1)
