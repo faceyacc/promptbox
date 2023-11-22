@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"html/template"
@@ -26,8 +27,10 @@ type application struct {
 }
 
 func main() {
+
 	cert := "../certs_promptbox/tls/cert.pem"
 	key := "../certs_promptbox/tls/key.pem"
+
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:turintest@/promptbox?parseTime=true", "MySQL data source name")
 	flag.Parse()
@@ -67,12 +70,20 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
-	logger.Info("starting server", "addr", *addr)
+	// Set HTTPS server to use non CPU-intensive elliptic curve implementations.
+	tlsConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
 
 	srv := &http.Server{
-		Addr:     *addr,
-		Handler:  app.routes(),
-		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		Addr:      *addr,
+		Handler:   app.routes(),
+		ErrorLog:  slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		TLSConfig: tlsConfig,
+
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 & time.Second,
 	}
 
 	logger.Info("starting server", "addr", srv.Addr)
