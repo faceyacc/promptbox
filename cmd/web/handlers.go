@@ -126,7 +126,49 @@ func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Create a new user...")
+	var form userSignUpForm
+
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Email), "email", "You must input your email to signup")
+	form.CheckField(validator.NotBlank(form.Password), "password", "You must create a password")
+
+	// form.CheckField(validator.Matches(form.Email, validator.EmailRx), "email", "You must give an valid email")
+	form.CheckField(validator.Matches(form.Email), "email", "You must give an valid email")
+	form.CheckField(validator.MinChars(form.Password, 8), "password", "Your password must be at least 8 characters long")
+
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "signup.html", data)
+		return
+	}
+
+	err = app.users.Insert(form.Name, form.Email, form.Password)
+	// Handle if user tries to sign up with duplicate email.
+	if err != nil {
+		if errors.Is(err, models.ErrDuplicateEmail) {
+			form.AddFieldError("email", "This email is already in use")
+
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, r, http.StatusUnprocessableEntity, "signup.html", data)
+		} else {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	// Show user success flash message.
+	app.sessionManager.Put(r.Context(), "flash", "Your signup was successful. Please log in.")
+
+	// Redirect user to the login page if sign up is successful.
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {

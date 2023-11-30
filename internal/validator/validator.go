@@ -1,10 +1,16 @@
 package validator
 
 import (
+	"net/mail"
+	"regexp"
 	"slices"
 	"strings"
 	"unicode/utf8"
 )
+
+// Regex based on The Web Hypertext Application Technology Working Group
+// for validating email addresses.
+var EmailRx = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])? (?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 type Validator struct {
 	// Holds error messages for form field.
@@ -51,4 +57,17 @@ func MaxChars(value string, n int) bool {
 // permitted values.
 func PermittedValue[T comparable](value T, permittedValues ...T) bool {
 	return slices.Contains(permittedValues, value)
+}
+
+// MinChars returns true if value contains a least n characters.
+func MinChars(value string, n int) bool {
+	return utf8.RuneCountInString(value) >= n
+}
+
+// Matches returns true if a value matches a given regular expression
+func Matches(value string) bool {
+	_, err := mail.ParseAddress(value)
+	return err == nil
+
+	// return rx.MatchString(value)
 }
