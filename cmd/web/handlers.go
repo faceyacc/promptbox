@@ -18,6 +18,13 @@ type promptCreateForm struct {
 	validator.Validator `form:"-"`
 }
 
+type userSignUpForm struct {
+	Name                string `form:"name"`
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	validator.Validator `form:"-"`
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	prompts, err := app.prompts.Latest()
@@ -110,7 +117,12 @@ func (app *application) promptCreate(w http.ResponseWriter, r *http.Request) {
 
 // Handlers to handle user authentication.
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Display a HTML form for signinig up a new user...")
+
+	data := app.newTemplateData(r)
+
+	data.Form = userSignUpForm{}
+
+	app.render(w, r, http.StatusOK, "signup.html", data)
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
