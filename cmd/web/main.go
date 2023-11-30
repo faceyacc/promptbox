@@ -20,10 +20,11 @@ import (
 // Struct to hold application-wide dependencies.
 type application struct {
 	logger         *slog.Logger
-	prompts        *models.PromptModel
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
+	prompts        *models.PromptModel
+	users          *models.UserModel
 }
 
 func main() {
@@ -64,10 +65,11 @@ func main() {
 
 	app := &application{
 		logger:         logger,
-		prompts:        &models.PromptModel{DB: db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
+		prompts:        &models.PromptModel{DB: db},
+		users:          &models.UserModel{DB: db},
 	}
 
 	// Set HTTPS server to use non CPU-intensive elliptic curve implementations.
