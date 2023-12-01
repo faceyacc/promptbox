@@ -25,6 +25,12 @@ type userSignUpForm struct {
 	validator.Validator `form:"-"`
 }
 
+type userLoginForm struct {
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	validator.Validator `form:"-"`
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	prompts, err := app.prompts.Latest()
@@ -138,7 +144,6 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	form.CheckField(validator.NotBlank(form.Email), "email", "You must input your email to signup")
 	form.CheckField(validator.NotBlank(form.Password), "password", "You must create a password")
 
-	// form.CheckField(validator.Matches(form.Email, validator.EmailRx), "email", "You must give an valid email")
 	form.CheckField(validator.Matches(form.Email), "email", "You must give an valid email")
 	form.CheckField(validator.MinChars(form.Password, 8), "password", "Your password must be at least 8 characters long")
 
@@ -172,7 +177,11 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Display a HTML form for logging in a user")
+	data := app.newTemplateData(r)
+
+	data.Form = userLoginForm{}
+
+	app.render(w, r, http.StatusOK, "login.html", data)
 }
 
 func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {

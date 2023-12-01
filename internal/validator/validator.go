@@ -2,25 +2,21 @@ package validator
 
 import (
 	"net/mail"
-	"regexp"
 	"slices"
 	"strings"
 	"unicode/utf8"
 )
 
-// Regex based on The Web Hypertext Application Technology Working Group
-// for validating email addresses.
-var EmailRx = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])? (?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-
 type Validator struct {
 	// Holds error messages for form field.
-	FieldErrors map[string]string
+	FieldErrors    map[string]string
+	NonFieldErrors []string
 }
 
-// Valid() checks if any validation errors exist.
+// Valid() checks if any validation and non validations errors exist.
 // If no errors exist Valid() returns true.
 func (v *Validator) Valid() bool {
-	return len(v.FieldErrors) == 0
+	return len(v.FieldErrors) == 0 && len(v.NonFieldErrors) == 0
 }
 
 // AddFieldError() adds an error message to the FieldErrors map
@@ -33,6 +29,10 @@ func (v *Validator) AddFieldError(key, message string) {
 	if _, exists := v.FieldErrors[key]; !exists {
 		v.FieldErrors[key] = message
 	}
+}
+
+func (v *Validator) AddNonFieldErrors(message string) {
+	v.NonFieldErrors = append(v.NonFieldErrors, message)
 }
 
 // CheckField() adds an error message to the FieldErrors map only
@@ -68,6 +68,4 @@ func MinChars(value string, n int) bool {
 func Matches(value string) bool {
 	_, err := mail.ParseAddress(value)
 	return err == nil
-
-	// return rx.MatchString(value)
 }
