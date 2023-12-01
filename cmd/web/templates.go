@@ -11,11 +11,12 @@ import (
 // templateData is struct to pass dynamic data (data from database)
 // to HTML templates.
 type templateData struct {
-	Prompt      models.Prompt
-	Prompts     []models.Prompt
-	CurrentYear int
-	Form        any
-	Toast       string
+	Prompt          models.Prompt
+	Prompts         []models.Prompt
+	CurrentYear     int
+	Form            any
+	Toast           string
+	IsAuthenticated bool
 }
 
 func humanDate(t time.Time) string {
