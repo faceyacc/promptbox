@@ -1,9 +1,9 @@
 {{ define "title" }} Create a New Prompt {{ end }} 
 {{ define "main" }}
 <form action="/prompt/create" method="POST">
+  <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
   <div>
     <label>Title:</label>
-
     {{with .Form.FieldErrors.title}}
       <label class="error">{{.}}</label>
     {{end}}
