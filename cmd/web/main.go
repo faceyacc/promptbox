@@ -29,8 +29,8 @@ type application struct {
 
 func main() {
 
-	cert := "../certs_promptbox/tls/cert.pem"
-	key := "../certs_promptbox/tls/key.pem"
+	cert := "./tls/cert.pem"
+	key := "./tls/key.pem"
 
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:turintest@/promptbox?parseTime=true", "MySQL data source name")

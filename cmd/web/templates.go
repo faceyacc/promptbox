@@ -2,10 +2,12 @@ package main
 
 import (
 	"html/template"
+	"io/fs"
 	"path/filepath"
 	"time"
 
 	"promptbox.tyfacey.net/internal/models"
+	"promptbox.tyfacey.net/ui"
 )
 
 // templateData is struct to pass dynamic data (data from database)
@@ -34,7 +36,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
 	// Get slice of all filepaths from pages template.
-	pages, err := filepath.Glob("./ui/html/pages/*.html")
+	pages, err := fs.Glob(ui.Files, "html/pages/*.html")
 	if err != nil {
 		return nil, err
 	}
@@ -43,20 +45,17 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		// Get filename from full path.
 		name := filepath.Base(page)
 
-		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.html")
+		patterns := []string{
+			"html/base.html",
+			"html/partials/*.html",
+			page,
+		}
+
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}
 
-		ts, err = ts.ParseGlob("./ui/html/partials/*.html")
-		if err != nil {
-			return nil, err
-		}
-
-		ts, err = ts.ParseFiles(page)
-		if err != nil {
-			return nil, err
-		}
 		cache[name] = ts
 	}
 	return cache, nil
