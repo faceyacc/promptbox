@@ -1,11 +1,7 @@
 package main
 
 import (
-	"bytes"
-	"io"
-	"log/slog"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"promptbox.tyfacey.net/internal/assert"
@@ -13,30 +9,17 @@ import (
 
 func TestPing(t *testing.T) {
 
-	app := &application{
-		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
-	}
+	app := newTestApplication(t)
 
 	// Test all application handlers.
-	server := httptest.NewTLSServer(app.routes())
+	server := newTestServer(t, app.routes())
 	defer server.Close()
 
 	// Spin up server client to make request to test server.
-	response, err := server.Client().Get(server.URL + "/ping")
-	if err != nil {
-		t.Fatal(err)
-	}
+	resInt, _, body := server.get(t, "/ping")
 
 	// Check value of response status code returns a 200.
-	assert.Equal(t, response.StatusCode, http.StatusOK)
-
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	body = bytes.TrimSpace(body)
+	assert.Equal(t, resInt, http.StatusOK)
 
 	// Check returned string from ping.
 	assert.Equal(t, string(body), "OK")
