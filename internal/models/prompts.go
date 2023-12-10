@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+type PromptModelInerface interface {
+	Insert(title string, content string, expires int) (int, error)
+	Get(id int) (Prompt, error)
+	Latest() ([]Prompt, error)
+}
+
 type Prompt struct {
 	ID      int
 	Title   string

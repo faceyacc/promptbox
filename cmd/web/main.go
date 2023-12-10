@@ -23,8 +23,8 @@ type application struct {
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
-	prompts        *models.PromptModel
-	users          *models.UserModel
+	prompts        models.PromptModelInerface
+	users          models.UserModelInterface
 }
 
 func main() {
